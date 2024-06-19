@@ -150,7 +150,7 @@ async def fetch_audio(translated_text):
 # Streamlit app
 # Streamlit app
 # Streamlit app
-st.title("RRA RAG Chatbot with 130+ Languages and 40+Audio Language Response")
+st.title("RRA RAG Chatbot (Ask in any language)")
 
 if "messages" not in st.session_state:
     st.session_state.messages = []
