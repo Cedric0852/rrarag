@@ -1,6 +1,9 @@
 import os
 import asyncio
-
+import asyncio
+import qrcode
+from PIL import Image
+import io
 from dotenv import load_dotenv
 from io import BytesIO
 import streamlit as st
@@ -32,24 +35,41 @@ google_application_credentials = st.secrets["GOOGLE_APPLICATION_CREDENTIALS"]
 # Set the path for the Google Cloud credentials
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = google_application_credentials
 # Initialize the database client
-client = QdrantClient(
+# Caching the database client initialization
+@st.cache_resource(ttl=300)  # Cache for 5 minutes
+def initialize_database_client(api_key):
+    client = QdrantClient(
         url="https://dd35784a-143b-4fa3-8c18-b34b4bb9ef8e.us-east4-0.gcp.cloud.qdrant.io:6333",
         port=6333,
         verify=False,
         api_key=api_key,
     )
+    return client
+
+# Caching the LLM initialization
+@st.cache_resource(ttl=300)  # Cache for 5 minutes
+def initialize_llm(groq_api_key):
+    try:
+        llm = ChatGroq(temperature=0, model_name="llama3-8b-8192", api_key=groq_api_key)
+        llm_model_name = "llama3-8b-8192"
+    except Exception as e:
+        logging.warning(f"Failed to initialize ChatGroq: {e}. Falling back to mixtral-8x7b-32768.")
+        llm = ChatGroq(temperature=0, model_name="mixtral-8x7b-32768", api_key=groq_api_key)
+        llm_model_name = "mixtral-8x7b-32768"
+    return llm, llm_model_name
+
+# Load environment variables
+api_key = st.secrets["API_KEY1"]
+groq_api_key = st.secrets["GROQ_API_KEY"]
+
+# Initialize the database client and LLM with caching
+client = initialize_database_client(api_key)
+llm, llm_model_name = initialize_llm(groq_api_key)
+
+# Update session state with LLM model name
+st.session_state['llm_initialized'] = llm_model_name
 
 print("Database loaded")
-
-# Initialize LLM with fallback
-
-# Initialize LLM
-try:
-    llm = ChatGroq(temperature=0, model_name="llama3-8b-8192",api_key=groq_api_key)
-except Exception as e:
-    logging.warning(f"Failed to initialize ChatGroq: {e}. Falling back to mixtral-8x7b-32768.")
-    llm = ChatGroq(temperature=0, model_name="mixtral-8x7b-32768",api_key=groq_api_key)
-    st.session_state['llm_initialized'] = "GoogleGenerativeAI"
 print("LLM Initialized...")
 
 # Define the prompt template with memory and chat history
@@ -150,27 +170,65 @@ async def fetch_audio(translated_text):
 # Streamlit app
 # Streamlit app
 # Streamlit app
+# Title of the app
 st.title("RRA RAG Chatbot (Ask in any language)")
 
-if "messages" not in st.session_state:
-    st.session_state.messages = []
+# Add a sidebar with navigation options
+with st.sidebar:
+    selected_page = st.radio("Navigation", ["Chatbot", "About"])
 
-for message in st.session_state.messages:
-    with st.chat_message(message["role"]):
-        st.markdown(message["content"])
+if selected_page == "Chatbot":
+    if "messages" not in st.session_state:
+        st.session_state.messages = []
 
-if prompt := st.chat_input("Ask Tax Related Questions?"):
-    st.session_state.messages.append({"role": "user", "content": prompt})
-    with st.chat_message("user"):
-        st.markdown(prompt)
+    for message in st.session_state.messages:
+        with st.chat_message(message["role"]):
+            st.markdown(message["content"])
 
-    response_text = asyncio.run(get_response(prompt, history=st.session_state.messages))
-    with st.chat_message("assistant"):
-        st.markdown(response_text)
-        audio_file_path = asyncio.run(fetch_audio(response_text))
-        if audio_file_path:
-            audio_file = open(audio_file_path, "rb")
-            audio_bytes = audio_file.read()
-            st.audio(audio_bytes, format="audio/mp3")
-            audio_file.close()
-    st.session_state.messages.append({"role": "assistant", "content": response_text})
+    if prompt := st.chat_input("Ask Tax Related Questions?"):
+        st.session_state.messages.append({"role": "user", "content": prompt})
+        with st.chat_message("user"):
+            st.markdown(prompt)
+
+        response_text = asyncio.run(get_response(prompt, history=st.session_state.messages))
+        with st.chat_message("assistant"):
+            st.markdown(response_text)
+            audio_file_path = asyncio.run(fetch_audio(response_text))
+            if audio_file_path:
+                audio_file = open(audio_file_path, "rb")
+                audio_bytes = audio_file.read()
+                st.audio(audio_bytes, format="audio/mp3")
+                audio_file.close()
+        st.session_state.messages.append({"role": "assistant", "content": response_text})
+
+elif selected_page == "About":
+    st.header("About this App")
+    st.markdown("""
+    **RRA RAG Chatbot** is a project created to provide quick and accurate tax-related information.
+                
+    **Languages**: you can ask in any language.
+                
+    **Credits:**
+    - Created by: [Cedric](mailto:mugishac777@gmail.com)
+    - Special thanks to IndabaX and DigitalUmuganda 2024
+    
+    To access RRA RAG Chatbot on Telegram scan the QR code below.
+    """)
+    
+    # Generate a QR code
+    telegram_bot_url = "https://t.me/rra_chat_bot"
+    qr = qrcode.QRCode(
+        version=1,
+        error_correction=qrcode.constants.ERROR_CORRECT_L,
+        box_size=10,
+        border=4,
+    )
+    qr.add_data(telegram_bot_url)
+    qr.make(fit=True)
+
+    img = qr.make_image(fill="black", back_color="white")
+
+    # Display the QR code
+    buf = io.BytesIO()
+    img.save(buf)
+    st.image(buf.getvalue(), caption="Scan to access the Telegram bot")
