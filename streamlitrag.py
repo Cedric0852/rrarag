@@ -200,7 +200,7 @@ if selected_page == "Chatbot":
                 st.audio(audio_bytes, format="audio/mp3")
                 audio_file.close()
         st.session_state.messages.append({"role": "assistant", "content": response_text})
-
+    st.markdown("""[Telegram Bot >>](https://t.me/rra_chat_bot)""")
 elif selected_page == "About":
     st.header("About this App")
     st.markdown("""
