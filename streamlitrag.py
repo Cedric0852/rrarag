@@ -172,7 +172,7 @@ async def fetch_audio(translated_text):
 # Streamlit app
 # Title of the app
 st.title("RRA RAG Chatbot (Ask in any language)")
-
+st.markdown("""Telegram :[Telegram Bot](https://t.me/rra_chat_bot)""")
 # Add a sidebar with navigation options
 with st.sidebar:
     selected_page = st.radio("Navigation", ["Chatbot", "About"])
@@ -200,7 +200,7 @@ if selected_page == "Chatbot":
                 st.audio(audio_bytes, format="audio/mp3")
                 audio_file.close()
         st.session_state.messages.append({"role": "assistant", "content": response_text})
-    st.markdown("""Telegram :[Telegram Bot](https://t.me/rra_chat_bot)""")
+    
 elif selected_page == "About":
     st.header("About this App")
     st.markdown("""
