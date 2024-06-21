@@ -92,7 +92,7 @@ db = Qdrant(
 
 #prompt = PromptTemplate(template=prompt_template, input_variables=['context', 'question'])
 load_vector_store = db
-retriever = load_vector_store.as_retriever(search_kwargs={"k":3})
+retriever = load_vector_store.as_retriever(search_kwargs={"k":6})
 
 #chain_type_kwargs = {"prompt": prompt}
 
