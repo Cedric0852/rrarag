@@ -182,7 +182,7 @@ async def get_response(message,history):
         translated = result_text
     return translated
 
-st.title("RRA FAQ Chatbot (Ask in any language)")
+st.title("RRA FAQ Chatbot (Ask tax-related information in Rwanda)")
 # st.markdown("""Telegram :[Telegram Bot](https://t.me/rra_chat_bot) comming soon!!!""")
 hide_streamlit_style = """
 <style>
