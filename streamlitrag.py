@@ -154,7 +154,7 @@ async def extract_result_text(response):
     
     reference_text = "\n\nReferences:\n" + "\n".join(references) if references else ""
     
-    return final_answer + reference_text
+    return final_answer
 
 async def get_response(message,history):
     qa = RetrievalQA.from_chain_type(
