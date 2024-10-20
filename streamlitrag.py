@@ -179,7 +179,10 @@ async def get_response(message,history):
     else:
         translated = result_text
     return translated
-
+st.set_page_config(
+    page_title="RRA FAQ Chatbot",
+    page_icon="💬"  
+)
 st.title("RRA FAQ Chatbot (Ask in any language)")
 st.markdown("""Telegram :[Telegram Bot](https://t.me/rra_chat_bot) comming soon!!!""")
 hide_streamlit_style = """
