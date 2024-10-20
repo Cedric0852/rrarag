@@ -32,14 +32,10 @@ import cohere
 # Load environment variables from Streamlit secrets
 api_key = st.secrets["API_KEY1"]
 groq_api_key = st.secrets["GROQ_API_KEY"]
-# eleven_api_key = st.secrets["ELEVEN_API_KEY"]
-google_application_credentials = st.secrets["GOOGLE_APPLICATION_CREDENTIALS"]
+
 qdurl=st.secrets["QDURL"]
 cohere_api_key = st.secrets["COHERE_API_KEY"]
-# Set the path for the Google Cloud credentials
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = google_application_credentials
-# Initialize the database client
-# Caching the database client initialization
+
 @st.cache_resource(ttl=300)  
 def initialize_database_client(api_key):
     client = QdrantClient(
