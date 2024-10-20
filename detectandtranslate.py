@@ -1,17 +1,19 @@
 from google.cloud import translate_v3 as translate
 import google.api_core.exceptions
-
+import json
+import streamlit as st
+import google.auth
+from google.oauth2 import service_account
+def get_translate_client():
+    gcp_credentials = st.secrets["gcp_service_account"]
+    credentials_dict = json.loads(json.dumps(dict(gcp_credentials)))
+    credentials = service_account.Credentials.from_service_account_info(credentials_dict)
+    
+    return translate.TranslationServiceClient(credentials=credentials)
 def detect_language(text: str, project_id: str = "banguka-406711") -> str:
-    """Detecting the language of a text string.
+    client = get_translate_client()
 
-    Args:
-        text: The text to detect the language for.
-        project_id: The GCP project ID.
-
-    Returns:
-        The detected language code.
-    """
-    client = translate.TranslationServiceClient()
+    project_id = st.secrets["gcp_service_account"]["project_id"]
 
     location = "global"
     parent = f"projects/{project_id}/locations/{location}"
@@ -19,30 +21,16 @@ def detect_language(text: str, project_id: str = "banguka-406711") -> str:
     response = client.detect_language(
         content=text,
         parent=parent,
-        mime_type="text/plain",  # mime types: text/plain, text/html
+        mime_type="text/plain",  
     )
-
-    # Return the language code of the most probable language
     detected_language = response.languages[0].language_code
     return detected_language
 
 async def translate_text(text: str, source_language: str, target_language: str, project_id: str = "banguka-406711") -> str:
-    """Translating text from source language to target language.
-
-    Args:
-        text: The text to be translated.
-        source_language: The source language code.
-        target_language: The target language code.
-        project_id: The GCP project ID.
-
-    Returns:
-        The translated text.
-    """
     if source_language == target_language:
-        return text  # No translation needed if source and target languages are the same
-
-    client = translate.TranslationServiceClient()
-
+        return text  
+    client = get_translate_client()
+    project_id = st.secrets["gcp_service_account"]["project_id"]
     location = "global"
     parent = f"projects/{project_id}/locations/{location}"
 
@@ -53,7 +41,5 @@ async def translate_text(text: str, source_language: str, target_language: str, 
         source_language_code=source_language,
         target_language_code=target_language
     )
-
-    # Return the translated text
     translated_text = response.translations[0].translated_text
     return translated_text
