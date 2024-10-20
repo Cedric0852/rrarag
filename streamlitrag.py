@@ -183,7 +183,7 @@ async def get_response(message,history):
     return translated
 
 st.title("RRA FAQ Chatbot (Ask in any language)")
-st.markdown("""Telegram :[Telegram Bot](https://t.me/rra_chat_bot) comming soon!!!""")
+# st.markdown("""Telegram :[Telegram Bot](https://t.me/rra_chat_bot) comming soon!!!""")
 hide_streamlit_style = """
 <style>
 .main .block-container {
@@ -233,17 +233,17 @@ elif selected_page == "About":
     """)
 
     
-    telegram_bot_url = "https://t.me/rra_chat_bot"
-    qr = qrcode.QRCode(
-        version=1,
-        error_correction=qrcode.constants.ERROR_CORRECT_L,
-        box_size=10,
-        border=4,
-    )
-    qr.add_data(telegram_bot_url)
-    qr.make(fit=True)
+    # telegram_bot_url = "https://t.me/rra_chat_bot"
+    # qr = qrcode.QRCode(
+    #     version=1,
+    #     error_correction=qrcode.constants.ERROR_CORRECT_L,
+    #     box_size=10,
+    #     border=4,
+    # )
+    # qr.add_data(telegram_bot_url)
+    # qr.make(fit=True)
 
-    img = qr.make_image(fill="black", back_color="white")
-    buf = io.BytesIO()
-    img.save(buf)
-    st.image(buf.getvalue(), caption="Telegram bot Comming soon")
+    # img = qr.make_image(fill="black", back_color="white")
+    # buf = io.BytesIO()
+    # img.save(buf)
+    # st.image(buf.getvalue(), caption="Telegram bot Comming soon")
