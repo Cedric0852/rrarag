@@ -183,7 +183,7 @@ async def get_response(message,history):
     return translated
 
 st.title("RRA FAQ Chatbot (Ask tax-related information in Rwanda)")
-# st.markdown("""Telegram :[Telegram Bot](https://t.me/rra_chat_bot) comming soon!!!""")
+# st.markdown("""Telegram :[Telegram Bot](https://t.me/rra_chat_bot) comming son!!!""")
 hide_streamlit_style = """
 <style>
 .main .block-container {
